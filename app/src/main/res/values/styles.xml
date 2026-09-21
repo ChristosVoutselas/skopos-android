@@ -1,0 +1,12 @@
+<resources>
+    <style name="Base.Theme.Skopos" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">#0C0A0D</item>
+        <item name="android:navigationBarColor">#181418</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#0C0A0D</item>
+        <item name="android:colorAccent">#FF6673</item>
+    </style>
+    <style name="Theme.Skopos" parent="Base.Theme.Skopos" />
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.voutselas.skopos.DataTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-09-21T19:51:13.497Z" hostname="Christoss-MacBook-Pro.local" time="0.038">
+  <properties/>
+  <testcase name="geographyRejectsInvalidCoordinates" classname="com.voutselas.skopos.DataTest" time="0.004"/>
+  <testcase name="huntCacheKeysAreQueryAndBackendSpecific" classname="com.voutselas.skopos.DataTest" time="0.026"/>
+  <testcase name="sourceLinksAreExplicitWebLinks" classname="com.voutselas.skopos.DataTest" time="0.001"/>
+  <testcase name="aptMissingSeverityIsExplicitFallback" classname="com.voutselas.skopos.DataTest" time="0.0"/>
+  <testcase name="indicatorNormalizationDoesNotResolveDomains" classname="com.voutselas.skopos.DataTest" time="0.003"/>
+  <testcase name="iocConfidenceIsNotSeverity" classname="com.voutselas.skopos.DataTest" time="0.002"/>
+  <testcase name="absentNumbersRemainUnknown" classname="com.voutselas.skopos.DataTest" time="0.0"/>
+  <testcase name="defangingNeutralizesTargets" classname="com.voutselas.skopos.DataTest" time="0.0"/>
+  <testcase name="timestampsSupportFractionalOffsets" classname="com.voutselas.skopos.DataTest" time="0.001"/>
+  <testcase name="backendPreservesDeploymentPath" classname="com.voutselas.skopos.DataTest" time="0.0"/>
+  <testcase name="backendRejectsUnsafeConfiguration" classname="com.voutselas.skopos.DataTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
