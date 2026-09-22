@@ -1,4 +1,4 @@
-# SKOPOS for Android
+ # SKOPOS for Android
 
 Native Kotlin / Jetpack Compose counterpart of the existing SKOPOS SwiftUI app. Requires Android 8.0 (API 26) or newer. The original iOS project was inspected read-only at `/Volumes/Transcend/ios/SKOPOS`.
 

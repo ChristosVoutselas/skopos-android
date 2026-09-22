@@ -10,6 +10,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -74,9 +77,20 @@ class MainActivity : ComponentActivity() {
     var section by rememberSaveable { mutableStateOf("Overview") }
     var route by rememberSaveable { mutableStateOf<String?>(null) }
     var detail by remember { mutableStateOf<Record?>(null) }
+    var globeFullScreen by rememberSaveable { mutableStateOf(false) }
+    val immersive = globeFullScreen && route == "Global view"
     val holder = rememberSaveableStateHolder()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val context = LocalContext.current
+    DisposableEffect(context, immersive) {
+        val activity = context as? ComponentActivity
+        val controller = activity?.let { WindowCompat.getInsetsController(it.window, it.window.decorView) }
+        if(immersive) {
+            controller?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller?.hide(WindowInsetsCompat.Type.systemBars())
+        } else controller?.show(WindowInsetsCompat.Type.systemBars())
+        onDispose { controller?.show(WindowInsetsCompat.Type.systemBars()) }
+    }
     DisposableEffect(context) {
         val manager = context.getSystemService(ConnectivityManager::class.java)
         val main = Handler(Looper.getMainLooper())
@@ -99,11 +113,12 @@ class MainActivity : ComponentActivity() {
         if(active) while(true) { store.tick(section); delay(1000) }
     }
     BackHandler(detail != null || route != null || section != "Overview") {
-        if(detail != null) detail = null else if(route != null) route = null else section = "Overview"
+        if(immersive) globeFullScreen = false else if(detail != null) detail = null else if(route != null) route = null else section = "Overview"
     }
     Scaffold(containerColor = Background,
-        topBar = { if(detail != null || route != null) TopAppBar(title = { Text(if(detail != null) "${detail!!.kind.label} details" else route!!) }, navigationIcon = { IconButton(onClick = { if(detail != null) detail = null else route = null }) { Icon(Icons.Default.ArrowBack, "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Background)) },
-        bottomBar = { Column(Modifier.fillMaxWidth().background(Surface).navigationBarsPadding()) {
+        contentWindowInsets = if(immersive) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
+        topBar = { if(!immersive && (detail != null || route != null)) TopAppBar(title = { Text(if(detail != null) "${detail!!.kind.label} details" else route!!) }, navigationIcon = { IconButton(onClick = { if(detail != null) detail = null else route = null }) { Icon(Icons.Default.ArrowBack, "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Background)) },
+        bottomBar = { if(!immersive) Column(Modifier.fillMaxWidth().background(Surface).navigationBarsPadding()) {
             Text("‹  Swipe for more tabs  ›", Modifier.align(Alignment.CenterHorizontally).padding(top = 5.dp), color = Muted, fontSize = 10.sp)
             LazyRow(Modifier.fillMaxWidth()) {
                 items(sections) { item ->
@@ -121,16 +136,16 @@ class MainActivity : ComponentActivity() {
         Column(Modifier.padding(insets).fillMaxSize()) {
             store.storageError?.let { Text(it, color = Orange, fontSize = 12.sp, modifier = Modifier.padding(12.dp)) }
             val pull = rememberPullRefreshState(store.loading || store.huntLoading || store.aptLoading, { store.refreshCurrent(section) })
-            Box(Modifier.fillMaxSize().pullRefresh(pull)) {
+            Box(Modifier.fillMaxSize().pullRefresh(pull, enabled = route != "Global view")) {
                 val selected = detail
                 if(selected != null) DetailScreen(selected, store)
                 else when(route) {
-                    "Global view" -> GlobeScreen(store.snapshot?.rows("iocs", Kind.IOC) ?: emptyList())
+                    "Global view" -> GlobeScreen(store.snapshot?.rows("iocs", Kind.IOC) ?: emptyList(), immersive) { globeFullScreen = it }
                     "Settings" -> SettingsScreen(store) { route = null; section = "Overview" }
                     "Investigate" -> InvestigationScreen(store) { detail = it }
                     else -> holder.SaveableStateProvider(section) {
                         when(section) {
-                            "Overview" -> OverviewScreen(store) { route = "Global view" }
+                            "Overview" -> OverviewScreen(store) { globeFullScreen = false; route = "Global view" }
                             "News" -> NewsScreen(store) { detail = it }
                             "Vulnerabilities" -> VulnerabilitiesScreen(store) { detail = it }
                             "Ransomware" -> RansomwareScreen(store) { detail = it }
@@ -141,7 +156,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                PullRefreshIndicator(store.loading || store.huntLoading || store.aptLoading, pull, Modifier.align(Alignment.TopCenter), backgroundColor = Surface, contentColor = Accent)
+                if(route != "Global view") PullRefreshIndicator(store.loading || store.huntLoading || store.aptLoading, pull, Modifier.align(Alignment.TopCenter), backgroundColor = Surface, contentColor = Accent)
             }
         }
     }
@@ -193,9 +208,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
             item { Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 Image(painterResource(R.drawable.skopos_logo), "SKOPOS owl logo", Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)))
                 Text("SKOPOS", fontWeight = FontWeight.Bold, fontSize = 25.sp, letterSpacing = 4.sp)
-                Text("Last Updated", color = Muted, fontFamily = FontFamily.Monospace, fontSize = 10.sp)
-                Text(store.snapshot?.let { dateLabel(it.updated) } ?: "Awaiting live data", fontSize = 11.sp)
-                if(store.snapshot?.cached == true) Badge("Cached", Orange)
+                Status(store.snapshot, store.loading, store.error) { store.refresh() }
             } }
             item { TextButton(onClick = globe, modifier = Modifier.fillMaxWidth()) { Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 GlobeEmblem(Modifier.size(110.dp)); Text("GLOBAL VIEW  ↗", letterSpacing = 2.sp, fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = Color.White)
@@ -209,7 +222,6 @@ fun sectionIcon(section: String): ImageVector = when(section) {
                     Text(note, color = Muted, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
                 }
             } } }
-            item { Status(store.snapshot, store.loading, store.error) { store.refresh() } }
         }
     }
 }
@@ -270,7 +282,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
     var categories by rememberSaveable { mutableStateOf(listOf("IP / C2", "Domains", "URLs", "Other")) }
     val all = store.hunt?.rows("iocs", Kind.IOC) ?: emptyList(); val rows = all.filter { it.category in categories }
     Page {
-        item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text("IOC Hunt", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f)); IconButton(onClick = settings) { Icon(Icons.Default.Settings, "Settings") } } }
+        item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Spacer(Modifier.width(48.dp)); Text("IOC Hunt", fontSize = 28.sp, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.weight(1f)); IconButton(onClick = settings, modifier = Modifier.size(48.dp)) { Icon(Icons.Default.Settings, "Settings") } } }
         item { Status(store.hunt, store.huntLoading, store.huntError) { store.refreshHunt() } }
         item { Search(search, "IP, domain, URL, hash, malware, ASN or tag") { search = it } }
         item { Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

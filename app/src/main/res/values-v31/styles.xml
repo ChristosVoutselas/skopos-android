@@ -1,7 +1,7 @@
 <resources>
     <style name="Theme.Skopos" parent="Base.Theme.Skopos">
         <item name="android:windowSplashScreenBackground">#0C0A0D</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/skopos_icon</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/skopos_splash_icon</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

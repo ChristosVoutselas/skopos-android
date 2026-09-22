@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fractional insets scale with the system's splash drawable bounds.
+     The complete square stays inside Android's circular safe area. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/skopos_icon"
+    android:insetLeft="27%" android:insetTop="27%"
+    android:insetRight="27%" android:insetBottom="27%" />
