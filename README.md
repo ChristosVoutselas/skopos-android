@@ -1,4 +1,4 @@
- # SKOPOS for Android
+# SKOPOS for Android
 
 Native Kotlin / Jetpack Compose counterpart of the existing SKOPOS SwiftUI app. Requires Android 8.0 (API 26) or newer. The original iOS project was inspected read-only at `/Volumes/Transcend/ios/SKOPOS`.
 
@@ -39,19 +39,21 @@ HTTPS is mandatory for backend requests. Redirects are rejected, cookies and HTT
 
 Eight horizontally scrollable bottom tabs match the current iOS source: Overview, News, Vulnerabilities, Ransomware, IOC Hunt, APT Campaigns, Watchlist Setup, Product & Legal.
 
-- Original owl logo/icon and bundled Natural Earth geography; near-black panels, coral accents and radar animation.
+- Updated iOS owl logo/icon, blue-gray webpage palette, coral accents, gradient panels and radar animation.
 - Overview totals use server counts, never the length of a bounded feed. The unavailable new/updated CVE total stays “—”.
 - News includes local text/source filtering, four sorts, 10/20/50 per page, detail views and publisher links.
 - CVEs include search, KEV/high-EPSS filters, date/CVSS/EPSS/KEV sorting, remediation and NVD links. The backend caps this feed at 1,000; this is not a complete database browser.
 - Ransomware search and details preserve the distinction between reported claims and verified breaches.
-- IOC Hunt accepts free text, time/type filters, category toggles and a 24-bin source-first-seen chart. Quick investigation validates individual indicators. Indicators remain defanged text; they are never visited.
+- IOC Hunt accepts free text, time/type filters, category toggles and a 24-bin source-first-seen chart. Queries refresh automatically after a 350 ms typing delay; white time/type menus and coral category toggles match iOS. Quick investigation validates individual indicators. Indicators remain defanged text; they are never visited.
 - APT campaigns include search over supplied metadata, MITRE update ordering and details/source links. Missing severity displays the same Medium default as iOS, with disclosure.
 - Watchlist terms support add/edit/delete and matches against loaded IOC, CVE, claim and APT records. Detail screens support saved bookmarks. Everything is local; no background alerts or sync.
-- Globe supports drag/pinch, zoom/reset and accessible rotate buttons. Its animated collection arcs use real IOC locations and illustrative hubs, never claims of measured attack traffic.
+- Globe uses the original shaded Natural Earth globe, category-balanced sampling of up to 95 valid locations, clustered markers, selectable indicator details, automatic rotation with pause, double-tap zoom, drag/pinch, zoom/reset and accessible rotate buttons. Its animated collection arcs use real IOC locations and illustrative hubs, never claims of measured attack traffic.
 
 Foreground polling refreshes every 60 seconds, with per-feed request gates and manual pull-to-refresh. Returning to the foreground refreshes when due. APT and Hunt update while their relevant sections are selected. Connectivity recovery makes the next tick eligible immediately. Already-started requests can finish after backgrounding; no background polling is scheduled.
 
 Full snapshots, APT campaigns and Hunt results use separate atomic disk caches keyed by backend and, for Hunt, normalized query parameters. Cached results retain the successful retrieval timestamp. Quick investigations are not persisted. Watchlists use app-private preferences with write failure checks; backup and device transfer are excluded. No fictional/demo fallback is shipped.
+
+Wide screens (840dp and above) show record lists and details side by side. News supports direct page selection; empty news, CVE and Hunt results include retry/clear controls.
 
 ## Implementation and validation
 

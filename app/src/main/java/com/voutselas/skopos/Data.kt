@@ -75,7 +75,7 @@ data class Record(val kind: Kind, val raw: JSONObject) {
         Kind.APT -> raw.text("reference_url"); else -> raw.text("url")
     })
     fun matches(query: String): Boolean = query.trim().let { it.isEmpty() || raw.toString().contains(it, true) }
-    val category: String get() = when { text("ioc_type").contains("ip", true) -> "IP / C2"; text("ioc_type").contains("domain", true) -> "Domains"; text("ioc_type").contains("url", true) -> "URLs"; else -> "Other" }
+    val category: String get() = when { (text("ioc_type").contains("ip", true) || text("ioc_type").contains("c2", true)) -> "IP / C2"; (text("ioc_type").contains("domain", true) || text("ioc_type").contains("hostname", true)) -> "Domains"; text("ioc_type").contains("url", true) -> "URLs"; else -> "Other" }
     val latitude get() = raw.number("latitude")?.takeIf { it in -90.0..90.0 }
     val longitude get() = raw.number("longitude")?.takeIf { it in -180.0..180.0 }
 }
@@ -123,4 +123,22 @@ class Backend(private val base: String) {
         return JSONObject().put("campaigns", rows)
     }
     suspend fun hunt(query: HuntQuery) = JSONObject().put("iocs", JSONArray(get("api/iocs", query.params)))
+}
+
+/** Round-robin categories preserve real locations and include minority IOC types. */
+fun balancedGlobeNodes(rows: List<Record>, limit: Int = 95): List<Record> {
+    val buckets = listOf("IP / C2", "Domains", "URLs", "Other").map { category ->
+        rows.filter { it.latitude != null && it.longitude != null && it.category == category }
+    }
+    val result = mutableListOf<Record>()
+    var index = 0
+    while(result.size < limit.coerceAtLeast(0)) {
+        var added = false
+        for(bucket in buckets) {
+            if(index < bucket.size && result.size < limit) { result.add(bucket[index]); added = true }
+        }
+        if(!added) break
+        index++
+    }
+    return result
 }

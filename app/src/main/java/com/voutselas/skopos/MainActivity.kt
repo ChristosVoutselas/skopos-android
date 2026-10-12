@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -51,23 +52,26 @@ import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
 
-val Background = Color(0xFF0C0A0D)
-val Surface = Color(0xFF181418)
-val Accent = Color(0xFFFF6673)
-val Muted = Color(0xFFA8A1AB)
-val Orange = Color(0xFFFFA857)
-val Border = Color(0xFF302A30)
+val Background = Color(0xFF172832)
+val Surface = Color(0xFF1B303D)
+val Accent = Color(0xFFF05B6B)
+val Muted = Color(0xFFB0C0CB)
+val Orange = Color(0xFFFFBF47)
+val Border = Color(0xFF38505F)
+val TextColor = Color(0xFFF0F3F4)
+val Cyan = Color(0xFF88D8EB)
+val Purple = Color(0xFFB48CFF)
 val sections = listOf("Overview", "News", "Vulnerabilities", "Ransomware", "IOC Hunt", "APT Campaigns", "Watchlist Setup", "Product & Legal")
 fun dateLabel(time: Long) = if(time == 0L) "Unknown" else DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(time))
 fun numberLabel(value: Double?) = value?.let { String.format(Locale.getDefault(), "%,.0f", it) } ?: "—"
-fun severityColor(value: String) = when(value.lowercase()) { "critical" -> Accent; "high" -> Orange; "medium" -> Color(0xFFF7D56C); "low" -> Color(0xFF66D9A6); else -> Muted }
+fun severityColor(value: String) = when(value.lowercase()) { "critical" -> Accent; "high" -> Orange; "medium" -> Orange; "low" -> Color(0xFF39D98A); else -> Muted }
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         val store = ViewModelProvider(this)[Store::class.java]
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Background, surface = Surface, onPrimary = Background, onSurface = Color.White, onBackground = Color.White, outline = Border, secondary = Orange)) {
+            MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Background, surface = Surface, onPrimary = Background, onSurface = TextColor, onBackground = TextColor, outline = Border, secondary = Orange)) {
                 SkoposApp(store)
             }
         }
@@ -78,6 +82,7 @@ class MainActivity : ComponentActivity() {
     var route by rememberSaveable { mutableStateOf<String?>(null) }
     var detail by remember { mutableStateOf<Record?>(null) }
     var globeFullScreen by rememberSaveable { mutableStateOf(false) }
+    val tablet = LocalConfiguration.current.screenWidthDp >= 840
     val immersive = globeFullScreen && route == "Global view"
     val holder = rememberSaveableStateHolder()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -117,7 +122,7 @@ class MainActivity : ComponentActivity() {
     }
     Scaffold(containerColor = Background,
         contentWindowInsets = if(immersive) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
-        topBar = { if(!immersive && (detail != null || route != null)) TopAppBar(title = { Text(if(detail != null) "${detail!!.kind.label} details" else route!!) }, navigationIcon = { IconButton(onClick = { if(detail != null) detail = null else route = null }) { Icon(Icons.Default.ArrowBack, "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Background)) },
+        topBar = { if(!immersive && ((detail != null && !tablet) || route != null)) TopAppBar(title = { Text(if(detail != null) "${detail!!.kind.label} details" else route!!) }, navigationIcon = { IconButton(onClick = { if(detail != null) detail = null else route = null }) { Icon(Icons.Default.ArrowBack, "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Background)) },
         bottomBar = { if(!immersive) Column(Modifier.fillMaxWidth().background(Surface).navigationBarsPadding()) {
             Text("‹  Swipe for more tabs  ›", Modifier.align(Alignment.CenterHorizontally).padding(top = 5.dp), color = Muted, fontSize = 10.sp)
             LazyRow(Modifier.fillMaxWidth()) {
@@ -138,10 +143,11 @@ class MainActivity : ComponentActivity() {
             val pull = rememberPullRefreshState(store.loading || store.huntLoading || store.aptLoading, { store.refreshCurrent(section) })
             Box(Modifier.fillMaxSize().pullRefresh(pull, enabled = route != "Global view")) {
                 val selected = detail
-                if(selected != null) DetailScreen(selected, store)
+                Row(Modifier.fillMaxSize(), horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                if(selected != null && !tablet) DetailScreen(selected, store)
                 else when(route) {
                     "Global view" -> GlobeScreen(store.snapshot?.rows("iocs", Kind.IOC) ?: emptyList(), immersive) { globeFullScreen = it }
-                    "Settings" -> SettingsScreen(store) { route = null; section = "Overview" }
                     "Investigate" -> InvestigationScreen(store) { detail = it }
                     else -> holder.SaveableStateProvider(section) {
                         when(section) {
@@ -149,12 +155,17 @@ class MainActivity : ComponentActivity() {
                             "News" -> NewsScreen(store) { detail = it }
                             "Vulnerabilities" -> VulnerabilitiesScreen(store) { detail = it }
                             "Ransomware" -> RansomwareScreen(store) { detail = it }
-                            "IOC Hunt" -> HuntScreen(store, { route = "Settings" }, { route = "Investigate" }) { detail = it }
+                            "IOC Hunt" -> HuntScreen(store, { route = "Investigate" }) { detail = it }
                             "APT Campaigns" -> CampaignScreen(store) { detail = it }
                             "Watchlist Setup" -> WatchlistScreen(store) { detail = it }
-                            else -> LegalScreen { route = "Settings" }
+                            else -> LegalScreen()
                         }
                     }
+                }
+                }
+                if(tablet && route == null && section in listOf("News", "Vulnerabilities", "Ransomware", "IOC Hunt", "APT Campaigns")) Box(Modifier.weight(1f).fillMaxHeight()) {
+                    if(selected != null) DetailScreen(selected, store) else Column(Modifier.fillMaxSize(), verticalArrangement=Arrangement.Center, horizontalAlignment=Alignment.CenterHorizontally) { Text("Select a record", fontSize=22.sp); Text("Details appear here while you browse.", color=Muted) }
+                }
                 }
                 if(route != "Global view") PullRefreshIndicator(store.loading || store.huntLoading || store.aptLoading, pull, Modifier.align(Alignment.TopCenter), backgroundColor = Surface, contentColor = Accent)
             }
@@ -171,7 +182,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
     }
 }
 @Composable fun Panel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Surface).border(1.dp, Border, RoundedCornerShape(20.dp)).padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Brush.linearGradient(listOf(Surface, Background.copy(alpha=.65f)))).border(1.dp, Border, RoundedCornerShape(20.dp)).padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
 }
 @Composable fun Badge(text: String, color: Color = Accent) {
     Text(text.uppercase(), color = color, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
@@ -179,7 +190,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
 }
 @Composable fun Status(data: Dataset?, loading: Boolean, error: String?, retry: () -> Unit) {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(when { error != null -> "●  Connection unavailable"; data?.cached == true -> "●  Cached Intelligence"; data != null -> "●  Live Intelligence"; else -> "○  Connecting to SKOPOS" }, color = if(data != null && !data.cached && error == null) Color(0xFF66D9A6) else Orange, fontSize = 12.sp)
+        Text(when { error != null -> "●  Connection unavailable"; data?.cached == true -> "●  Cached Intelligence"; data != null -> "●  Live Intelligence"; else -> "○  Connecting to SKOPOS" }, color = if(data != null && !data.cached && error == null) Color(0xFF39D98A) else Orange, fontSize = 12.sp)
         Text("Last updated: ${data?.let { dateLabel(it.updated) } ?: "—"}", color = Muted, fontSize = 11.sp)
         data?.notice?.let { Text(it, color = Orange, fontSize = 12.sp) }
         error?.let { Text(it, color = Orange, fontSize = 12.sp); TextButton(onClick = retry) { Text("Retry connection") } }
@@ -192,12 +203,12 @@ fun sectionIcon(section: String): ImageVector = when(section) {
 }
 @Composable fun Choice(label: String, choices: List<String>, selected: String, change: (String) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    Box { OutlinedButton(onClick = { open = true }) { Text("$label$selected  ▾", fontSize = 12.sp) }
+    Box { OutlinedButton(onClick = { open = true }, colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)) { Text("$label$selected  ▾", fontSize = 12.sp) }
         DropdownMenu(open, { open = false }) { choices.forEach { item -> DropdownMenuItem(text = { Text(item) }, onClick = { change(item); open = false }) } }
     }
 }
 @Composable fun Filters(values: List<String>, selected: String, change: (String) -> Unit) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { values.forEach { value -> FilterChip(selected == value, { change(value) }, label = { Text(value, fontSize = 12.sp) }) } }
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { values.forEach { value -> FilterChip(selected == value, { change(value) }, label = { Text(value, fontSize = 12.sp) }, colors = FilterChipDefaults.filterChipColors(labelColor = TextColor, selectedLabelColor = TextColor, selectedContainerColor = Accent.copy(alpha=.18f))) } }
 }
 @Composable fun Empty(message: String) { Panel { Text(message, color = Muted, modifier = Modifier.padding(vertical = 24.dp)) } }
 @Composable fun OverviewScreen(store: Store, globe: () -> Unit) {
@@ -206,7 +217,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
         RadarBackdrop(Modifier.fillMaxSize())
         Page {
             item { Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                Image(painterResource(R.drawable.skopos_logo), "SKOPOS owl logo", Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)))
+                Image(painterResource(R.drawable.skopos_logo), "SKOPOS owl logo", Modifier.size(112.dp).background(Brush.radialGradient(listOf(Cyan.copy(alpha = .12f), Color.Transparent))), contentScale = androidx.compose.ui.layout.ContentScale.Fit)
                 Text("SKOPOS", fontWeight = FontWeight.Bold, fontSize = 25.sp, letterSpacing = 4.sp)
                 Status(store.snapshot, store.loading, store.error) { store.refresh() }
             } }
@@ -240,13 +251,13 @@ fun sectionIcon(section: String): ImageVector = when(section) {
             Choice("Per page: ", listOf("10", "20", "50"), size.toString()) { size = it.toInt(); page = 1 }
         } }
         item { Text("Showing ${if(rows.isEmpty()) 0 else (current-1)*size+1}–${minOf(current*size, rows.size)} of ${rows.size} · Latest ${all.size} articles", color = Muted, fontSize = 12.sp) }
-        if(rows.isEmpty()) item { Empty("No matching articles. Try another search or source, or refresh.") }
+        if(rows.isEmpty() && !store.loading) item { Panel { Text(if(store.error != null) "Intelligence unavailable" else "No matching articles"); TextButton(onClick={search="";source="All sources";page=1;store.refresh()}) { Text("Clear filters / Retry") } } }
         items(rows.drop((current-1)*size).take(size), key = { it.id }) { RecordCard(it, select) }
         item { Pager(current, pages) { page = it } }
     }
 }
 @Composable fun Pager(page: Int, count: Int, change: (Int) -> Unit) { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-    OutlinedButton(onClick = { change(page-1) }, enabled = page > 1) { Text("Previous") }; Text("$page / $count", color = Muted, fontSize = 12.sp)
+    OutlinedButton(onClick = { change(page-1) }, enabled = page > 1) { Text("Previous") }; Choice("Page: ", (1..count).map { it.toString() }, page.toString()) { change(it.toInt()) }
     OutlinedButton(onClick = { change(page+1) }, enabled = page < count) { Text("Next") }
 } }
 @Composable fun VulnerabilitiesScreen(store: Store, select: (Record) -> Unit) {
@@ -261,7 +272,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
         item { Search(search, "CVE, vendor, product or title") { search = it } }
         item { Choice("", listOf("Newest published", "Last modified", "CVSS highest", "EPSS highest", "KEV first", "CVE ID"), sort) { sort = it }; Filters(listOf("All", "CISA KEV", "EPSS ≥90%"), filter) { filter = it } }
         item { Text("${rows.size} matching · Up to 1,000 loaded CVEs. The backend does not provide full-database pagination.", color = Muted, fontSize = 12.sp) }
-        if(rows.isEmpty()) item { Empty("No matching vulnerabilities. Adjust the filters or refresh.") }
+        if(rows.isEmpty() && !store.loading) item { Panel { Text(if(store.error != null) "Intelligence unavailable" else "No matching vulnerabilities"); TextButton(onClick={search="";filter="All";store.refresh()}) { Text("Clear filters / Retry") } } }
         items(rows, key = { it.id }) { RecordCard(it, select) }
     }
 }
@@ -277,23 +288,27 @@ fun sectionIcon(section: String): ImageVector = when(section) {
         item { Text("Latest 200 reported claims. Claims require independent verification.", color = Muted, fontSize = 12.sp) }
     }
 }
-@Composable fun HuntScreen(store: Store, settings: () -> Unit, investigate: () -> Unit, select: (Record) -> Unit) {
+@Composable fun HuntScreen(store: Store, investigate: () -> Unit, select: (Record) -> Unit) {
     var search by rememberSaveable { mutableStateOf(store.query.text) }; var hours by rememberSaveable { mutableIntStateOf(store.query.hours) }; var type by rememberSaveable { mutableStateOf(store.query.type) }
     var categories by rememberSaveable { mutableStateOf(listOf("IP / C2", "Domains", "URLs", "Other")) }
+    LaunchedEffect(search, hours, type) { delay(350); val next = HuntQuery(search.trim(), hours, type); if(next != store.query) store.submitHunt(next) }
     val all = store.hunt?.rows("iocs", Kind.IOC) ?: emptyList(); val rows = all.filter { it.category in categories }
     Page {
-        item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Spacer(Modifier.width(48.dp)); Text("IOC Hunt", fontSize = 28.sp, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.weight(1f)); IconButton(onClick = settings, modifier = Modifier.size(48.dp)) { Icon(Icons.Default.Settings, "Settings") } } }
+        item { ScreenTitle("IOC Hunt") }
         item { Status(store.hunt, store.huntLoading, store.huntError) { store.refreshHunt() } }
         item { Search(search, "IP, domain, URL, hash, malware, ASN or tag") { search = it } }
         item { Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Choice("Window: ", listOf("1", "6", "24"), hours.toString()) { hours = it.toInt() }
             Choice("Type: ", listOf("All", "ip", "domain", "url", "md5", "sha1", "sha256"), type.ifEmpty { "All" }) { type = if(it == "All") "" else it }
         } }
-        item { Button(onClick = { store.submitHunt(HuntQuery(search, hours, type)) }, modifier = Modifier.fillMaxWidth()) { Text("Search") } }
-        item { Column { listOf("IP / C2", "Domains", "URLs", "Other").chunked(2).forEach { pair -> Row { pair.forEach { c -> Row(Modifier.weight(1f).clickable { categories = if(c in categories) categories-c else categories+c }, verticalAlignment = Alignment.CenterVertically) { Checkbox(c in categories, { categories = if(c in categories) categories-c else categories+c }); Text(c, fontSize = 12.sp) } } } } } }
+        item { Column { listOf("IP / C2", "Domains", "URLs", "Other").chunked(2).forEach { pair -> Row { pair.forEach { c -> Row(Modifier.weight(1f).clickable { categories = if(c in categories) categories-c else categories+c }, verticalAlignment = Alignment.CenterVertically) { Checkbox(c in categories, { categories = if(c in categories) categories-c else categories+c }, colors = CheckboxDefaults.colors(checkedColor = Accent)); Text(c, fontSize = 12.sp) } } } } } }
         item { ArrivalsChart(all) }
         item { Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) { Text("Limit 1,000", color = Muted, fontSize = 12.sp); TextButton(onClick = investigate) { Text("Quick investigation") } } }
-        if(rows.isEmpty()) item { Empty("No matching indicators. Submit a search or adjust the categories.") }
+        if(rows.isEmpty() && !store.huntLoading) item { Panel {
+            Text(if(store.huntError != null) "Intelligence unavailable" else "No matching indicators")
+            Text("Try a broader search or adjust the categories.", color=Muted)
+            TextButton(onClick={ search=""; hours=24; type=""; categories=listOf("IP / C2", "Domains", "URLs", "Other"); store.refreshHunt() }) { Text("Try again / Clear filters") }
+        } }
         items(rows, key = { it.id }) { RecordCard(it, select) }
     }
 }
@@ -325,6 +340,7 @@ fun sectionIcon(section: String): ImageVector = when(section) {
                 Kind.NEWS -> { Text(record.title, fontWeight = FontWeight.Bold, fontSize = 17.sp); Badge(record.text("source")); Text(dateLabel(record.date), color = Muted, fontSize = 11.sp); Text(record.description.take(320), color = Muted, fontSize = 14.sp, lineHeight = 21.sp) }
                 Kind.APT -> { Text(record.title, fontWeight = FontWeight.Bold); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text(record.text("mitre_id", "—"), fontFamily = FontFamily.Monospace); Badge(record.severity, severityColor(record.severity)) }; Text("MITRE Last Modified: ${dateLabel(timestamp(record.raw.text("mitre_last_modified")))}", color = Muted, fontSize = 11.sp) }
             }
+            if(record.kind == Kind.IOC) { Text("Tags: ${record.text("tags", "None")}", color=Muted, fontSize=12.sp); if(record.raw.has("asn")) Text("ASN: ${record.text("asn")}", color=Muted, fontSize=12.sp) }
             Text("View details  ›", color = Accent, fontSize = 12.sp)
         }
         if(record.kind in listOf(Kind.NEWS, Kind.CVE, Kind.CLAIM)) record.link?.let { SourceButton(it, if(record.kind == Kind.CVE) "Open NVD details" else "Read more") }
@@ -416,17 +432,6 @@ fun sectionIcon(section: String): ImageVector = when(section) {
         items(store.saved, key = { it.text("id") }) { item -> Panel { Text(item.text("title"), fontWeight = FontWeight.Bold); Badge(item.text("kind")); Text(item.text("detail"), color = Muted); TextButton(onClick = { store.removeSaved(item) }) { Text("Remove saved item") } } }
     }
 }
-@Composable fun SettingsScreen(store: Store, done: () -> Unit) {
-    var url by rememberSaveable(store.base) { mutableStateOf(store.base) }; var error by rememberSaveable { mutableStateOf<String?>(null) }
-    Page { item { Panel {
-        Text("Connect to SKOPOS", fontWeight = FontWeight.Bold, fontSize = 22.sp)
-        OutlinedTextField(url, { url = it }, label = { Text("SKOPOS backend URL") }, modifier = Modifier.fillMaxWidth())
-        Text("Use the final HTTPS base URL. Provider credentials stay on the server.", color = Muted, fontSize = 13.sp)
-        error?.let { Text(it, color = Orange) }
-        Button(onClick = { error = store.configure(url); if(error == null) done() }, modifier = Modifier.fillMaxWidth()) { Text("Save connection") }
-        TextButton(onClick = { url = DEFAULT_BACKEND }) { Text("Use default SKOPOS backend") }
-    } }; item { Panel { Text("Refresh & offline access", fontWeight = FontWeight.Bold); Text("Intelligence refreshes every 60 seconds while the app is open. Pull down on a screen to refresh. Offline results retain their original retrieval time. Changing backends loads only that backend’s saved intelligence.", color = Muted) } } }
-}
 @Composable fun InvestigationScreen(store: Store, select: (Record) -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     Page {
@@ -438,17 +443,16 @@ fun sectionIcon(section: String): ImageVector = when(section) {
         items(store.investigation, key = { it.id }) { RecordCard(it, select) }
     }
 }
-@Composable fun LegalScreen(settings: () -> Unit) {
+@Composable fun LegalScreen() {
     val context = LocalContext.current
     Page {
         item { ScreenTitle("Product & Legal") }
         item { Panel {
             Text("SKOPOS", color = Accent, fontWeight = FontWeight.Bold, fontSize = 27.sp); Text("Threat Intelligence Platform", fontWeight = FontWeight.Bold)
             Text("Threat intelligence aggregation and visualization by Voutselas Group.")
-            Field("App version", "1.0 · Android")
+            Field("App version", BuildConfig.VERSION_NAME)
             SourceButton("https://voutselasgroup.com", "Voutselas Group")
             TextButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:cybersecurity@voutselasgroup.com"))) }.onFailure { Toast.makeText(context, "No email app installed.", Toast.LENGTH_SHORT).show() } }) { Text("Contact support") }
-            OutlinedButton(onClick = settings) { Icon(Icons.Default.Settings, null); Spacer(Modifier.width(8.dp)); Text("Connection settings") }
         } }
         item { Panel {
             Text("Legal", fontWeight = FontWeight.Bold, fontSize = 20.sp)

@@ -22,4 +22,16 @@ class DataTest {
     @Test fun geographyRejectsInvalidCoordinates() { val r=Record(Kind.IOC,JSONObject("{\"latitude\":91,\"longitude\":-181}")); assertNull(r.latitude); assertNull(r.longitude) }
     @Test fun huntCacheKeysAreQueryAndBackendSpecific() { assertEquals(HuntQuery(" x ").key,HuntQuery("x").key); assertNotEquals(HuntQuery("x").key,HuntQuery("x",6).key); assertNotEquals(cacheKey("https://a.example/|snapshot"),cacheKey("https://b.example/|snapshot")); assertTrue(HuntQuery("a&b").key.contains("a%26b")) }
     @Test fun aptMissingSeverityIsExplicitFallback() { val r=Record(Kind.APT,JSONObject("{\"id\":1,\"name\":\"Example\",\"severity\":null}")); assertEquals("Medium",r.severity); assertTrue(r.raw.isNull("severity")) }
+
+    private fun located(id: Int, type: String, lat: Double = 10.0): Record = Record(Kind.IOC, JSONObject().put("id",id).put("ioc_type",type).put("latitude",lat).put("longitude",20.0))
+    @Test fun balancedSamplingIncludesURLsBeyondInitialIPs() {
+        val rows=(1..120).map { located(it,"ip:port") }+(121..147).map { located(it,"url") }
+        val sample=balancedGlobeNodes(rows)
+        assertEquals(95,sample.size); assertEquals(27,sample.count { it.category=="URLs" }); assertEquals(95,sample.map { it.id }.distinct().size)
+    }
+    @Test fun balancedSamplingRejectsUnknownLocationsAndSharesCapacity() {
+        val rows=(1..100).flatMap { listOf(located(it,"ip"),located(it+100,"hostname"),located(it+200,"url"),located(it+300,"sha256")) }+located(500,"url",91.0)
+        val sample=balancedGlobeNodes(rows)
+        assertEquals(95,sample.size); assertTrue(sample.groupBy { it.category }.values.all { it.size in 23..24 }); assertFalse(sample.any { it.latitude==null }); assertTrue(balancedGlobeNodes(rows,0).isEmpty())
+    }
 }

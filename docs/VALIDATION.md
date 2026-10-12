@@ -1,3 +1,19 @@
+# Globe appearance restored — 12 October 2026
+
+Restored the previous shaded Natural Earth sphere and outlines. New palette, balanced sampling and selectable markers remain. Debug build, 13 unit tests and lint pass.
+
+# Validation — 12 October 2026
+
+- Android debug build, all 13 unit tests and lint passed.
+- Lint: 0 errors; 19 advisory warnings (dependency updates and optional idioms).
+- Added tests verify minority URL inclusion after more than 95 IP records, category balance, the 95-node limit, unique records, invalid geography omission and zero capacity.
+- Final APK installed and launched on Pixel_10 emulator. Live backend data loaded; new palette, owl branding, NASA Earth texture, red/cyan arcs, marker clusters and accessible indicator selection were checked visually. Selected indicator details displayed country, family and source. No app crash was observed in AndroidRuntime logs.
+- Earth rendering was corrected so rotation does not cancel unfinished texture frames.
+- APK: `dist/SKOPOS-debug.apk`. Build log and unit-test XML accompany this report.
+- Tablet side-by-side layout is implemented and compiled; a tablet runtime was not inspected. No Play Store upload or production signing was performed.
+
+## Previous validation
+
 # Validation — 21 September 2026
 
 ## Completed

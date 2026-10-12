@@ -2,14 +2,12 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id(
 android {
     namespace = "com.voutselas.skopos"
     compileSdk = 36
-    defaultConfig { applicationId = "com.voutselas.skopos"; minSdk = 26; targetSdk = 36; versionCode = 1; versionName = "1.0" }
-    buildFeatures { compose = true }
+    defaultConfig { applicationId = "com.voutselas.skopos"; minSdk = 26; targetSdk = 36; versionCode = 2; versionName = "1.1" }
+    buildFeatures { compose = true; buildConfig = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     buildTypes { release { isMinifyEnabled = false } }
 }
-
-
 dependencies {
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.ui:ui:1.6.8")
