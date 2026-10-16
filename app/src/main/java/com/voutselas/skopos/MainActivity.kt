@@ -8,8 +8,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.SystemBarStyle
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -68,7 +66,17 @@ fun severityColor(value: String) = when(value.lowercase()) { "critical" -> Accen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
+        // Compose owns system-bar backgrounds; inset padding protects interactive content.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
+        if(android.os.Build.VERSION.SDK_INT >= 30) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            }
+        }
         val store = ViewModelProvider(this)[Store::class.java]
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Background, surface = Surface, onPrimary = Background, onSurface = TextColor, onBackground = TextColor, outline = Border, secondary = Orange)) {
@@ -138,7 +146,7 @@ class MainActivity : ComponentActivity() {
             }
         } }
     ) { insets ->
-        Column(Modifier.padding(insets).fillMaxSize()) {
+        Column(Modifier.padding(insets).consumeWindowInsets(insets).fillMaxSize()) {
             store.storageError?.let { Text(it, color = Orange, fontSize = 12.sp, modifier = Modifier.padding(12.dp)) }
             val pull = rememberPullRefreshState(store.loading || store.huntLoading || store.aptLoading, { store.refreshCurrent(section) })
             Box(Modifier.fillMaxSize().pullRefresh(pull, enabled = route != "Global view")) {

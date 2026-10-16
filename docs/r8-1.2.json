@@ -1,0 +1,63 @@
+{
+  "options": {
+    "hasObfuscationDictionary": false,
+    "hasClassObfuscationDictionary": false,
+    "hasPackageObfuscationDictionary": false,
+    "keepAttributes": {
+      "isAnnotationDefaultKept": true,
+      "isEnclosingMethodKept": true,
+      "isExceptionsKept": false,
+      "isInnerClassesKept": true,
+      "isLocalVariableTableKept": false,
+      "isLocalVariableTypeTableKept": false,
+      "isMethodParametersKept": false,
+      "isPermittedSubclassesKept": false,
+      "isRuntimeInvisibleAnnotationsKept": false,
+      "isRuntimeInvisibleParameterAnnotationsKept": false,
+      "isRuntimeInvisibleTypeAnnotationsKept": false,
+      "isRuntimeVisibleAnnotationsKept": true,
+      "isRuntimeVisibleParameterAnnotationsKept": true,
+      "isRuntimeVisibleTypeAnnotationsKept": true,
+      "isSignatureKept": true,
+      "isSourceDebugExtensionKept": false,
+      "isSourceDirKept": false,
+      "isSourceFileKept": false,
+      "isStackMapTableKept": false
+    },
+    "isAccessModificationEnabled": true,
+    "isFlattenPackageHierarchyEnabled": false,
+    "isObfuscationEnabled": true,
+    "isOptimizationsEnabled": true,
+    "isProGuardCompatibilityModeEnabled": false,
+    "isProtoLiteOptimizationEnabled": false,
+    "isRepackageClassesEnabled": false,
+    "isShrinkingEnabled": true,
+    "apiModeling": {},
+    "minApiLevel": "26",
+    "isDebugModeEnabled": false
+  },
+  "baselineProfileRewriting": {},
+  "dexFiles": [
+    {
+      "checksum": "37c729a7b9a72b8e10909d2612e0a8ceef5b3d1232ac9d1600be62563290f76e",
+      "startup": false
+    }
+  ],
+  "stats": {
+    "noObfuscationPercentage": 1.79,
+    "noOptimizationPercentage": 3.26,
+    "noShrinkingPercentage": 2.51
+  },
+  "featureSplits": {
+    "featureSplits": [
+      {
+        "dexFiles": []
+      }
+    ],
+    "isolatedSplits": false
+  },
+  "resourceOptimization": {
+    "isOptimizedShrinkingEnabled": true
+  },
+  "version": "8.13.19"
+}

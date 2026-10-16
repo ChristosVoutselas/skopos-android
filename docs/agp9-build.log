@@ -1,0 +1,131 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/Users/christos/.gradle/wrapper/dists/gradle-9.6.0-bin/42k10rwplmzkhuboz9kdazi7s/gradle-9.6.0/lib/native-platform-0.22-milestone-29.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugAssets
+> Task :app:generateDebugRFile
+> Task :app:compressDebugAssets
+> Task :app:generateDebugGlobalSynthetics
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:mergeLibDexDebug
+> Task :app:compileDebugNavigationResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:mergeDebugResources
+
+> Task :app:compileDebugKotlin
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:133:296 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:184:63 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:238:62 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:361:29 'val Icons.Filled.ExitToApp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ExitToApp.
+
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeExtDexDebug
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:generateReleaseBuildConfig
+> Task :app:generateReleaseResources
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:packageReleaseResources
+> Task :app:processReleaseNavigationResources
+> Task :app:javaPreCompileRelease
+> Task :app:parseReleaseLocalResources
+> Task :app:mergeReleaseArtProfile
+> Task :app:checkReleaseAarMetadata
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseRFile
+> Task :app:compileReleaseNavigationResources
+> Task :app:mergeDebugJavaResource
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:extractProguardFiles
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:writeReleaseAppMetadata
+> Task :app:collectReleaseDependencies
+> Task :app:configureReleaseDependencies
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:parseReleaseIntegrityConfig
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:dexBuilderDebug
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeReleaseResources
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:processReleaseResources
+
+> Task :app:compileReleaseKotlin
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:133:296 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:184:63 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:238:62 'val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/src/main/java/com/voutselas/skopos/MainActivity.kt:361:29 'val Icons.Filled.ExitToApp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ExitToApp.
+
+> Task :app:testDebugUnitTest
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:processReleaseJavaRes
+> Task :app:mergeReleaseJavaResource
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:generateReleaseLintReportModel
+> Task :app:minifyReleaseWithR8
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease SKIPPED
+> Task :app:lintVitalRelease SKIPPED
+> Task :app:lintAnalyzeRelease
+> Task :app:buildReleasePreBundle
+> Task :app:compileReleaseArtProfile
+> Task :app:packageReleaseBundle
+> Task :app:signReleaseBundle
+> Task :app:produceReleaseBundleIdeListingFile
+> Task :app:createReleaseBundleListingFileRedirect
+> Task :app:bundleRelease
+
+> Task :app:lintReportRelease
+Wrote HTML report to file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/build/reports/lint-results-release.html
+Wrote SARIF report to file:///Users/christos/.codex/.chatgpt-projects/g-p-6ab183ce928c81918bc23be2b537447f/SKOPOS/app/build/reports/lint-results-release.sarif
+
+> Task :app:lintRelease
+
+BUILD SUCCESSFUL in 1m 38s
+89 actionable tasks: 89 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
